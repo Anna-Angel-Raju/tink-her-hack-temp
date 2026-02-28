@@ -64,6 +64,8 @@ ADMIN_PAGE
 <img width="1920" height="1080" alt="Screenshot 2026-02-28 175139" src="https://github.com/user-attachments/assets/304e272c-80d1-4481-9c05-10ddebfa923b" />
 FILTERING_OPTION
 
+VIDEOS
+
 
 
 The student interface showing the issue submission form and the live incident feed.
