@@ -11,7 +11,8 @@
     <button onclick="loginAdmin()" class="fixed top-5 right-5 bg-gray-800 text-white p-2 rounded text-sm">
     Admin Login
     </button>
-    
+
+    <div id="form-container">
     <div class="bg-white p-6 rounded shadow max-w-md mx-auto">
         <select id="location" class="w-full border p-2 mb-3 rounded">
             <option>Library</option>
@@ -41,83 +42,107 @@
         <textarea id="description" placeholder="What's the issue?" class="w-full border p-2 mb-3 rounded"></textarea>
         <button onclick="saveIssue()" class="w-full bg-blue-600 text-white p-2 rounded">Submit Issue</button>
     </div>
+    </div>
 
     <div id="feedback-list" class="max-w-md mx-auto mt-6"></div>
 
+
     <script type="module">
-        // This is your "Admin Key" - keep it simple for the demo
-        const ADMIN_SECRET = "campus123"; 
-        let isAdmin = false; // By default, everyone is a student
+    // 1. IMPORTS
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-
-    window.loginAdmin = () => {
-    const password = prompt("Enter Admin Password:");
-    if (password === ADMIN_SECRET) {
-        isAdmin = true;
-        alert("Welcome, Admin!");
-        // Refresh the feed to show admin controls
-        renderFeed(); 
-    } else {
-        alert("Invalid Password!");
-    }
-  };
-
-        // PASTE YOUR CONFIG HERE
+    // 2. FIREBASE CONFIG & INIT
     const firebaseConfig = {
-    apiKey: "AIzaSyAB-nrFjOenLR1in99KNGcn0u_EvPrO5KQ",
-    authDomain: "campuspulse-c2b3d.firebaseapp.com",
-    projectId: "campuspulse-c2b3d",
-    storageBucket: "campuspulse-c2b3d.firebasestorage.app",
-    messagingSenderId: "170661187917",
-    appId: "1:170661187917:web:23e1ecd329bf7bd8fb6704"
-  };
+        apiKey: "AIzaSyAB-nrFjOenLR1in99KNGcn0u_EvPrO5KQ",
+        authDomain: "campuspulse-c2b3d.firebaseapp.com",
+        projectId: "campuspulse-c2b3d",
+        storageBucket: "campuspulse-c2b3d.firebasestorage.app",
+        messagingSenderId: "170661187917",
+        appId: "1:170661187917:web:23e1ecd329bf7bd8fb6704"
+    };
 
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    // 3. GLOBAL VARIABLES
+    const ADMIN_SECRET = "campus123";
+    let isAdmin = false;
+    let currentSnapshot = null;
+
+    // 4. THE LIVE LISTENER (Only one!)
+    onSnapshot(query(collection(db, "feedbacks"), orderBy("timestamp", "desc")), (snapshot) => {
+        currentSnapshot = snapshot;
+        renderFeed(snapshot);
+    });
+
+    // 5. FUNCTIONS
+    window.loginAdmin = () => {
+        const password = prompt("Enter Admin Password:");
+        if (password === ADMIN_SECRET) {
+            isAdmin = true;
+            document.getElementById('form-container').style.display = 'none';
+            if (currentSnapshot) renderFeed(currentSnapshot); 
+            alert("Welcome, Admin!");
+        } else {
+            alert("Invalid Password!");
+        }
+    };
 
     window.saveIssue = async () => {
-    const loc = document.getElementById('location').value;
-    const cat = document.getElementById('category').value; // Get the category
-    const desc = document.getElementById('description').value;
+        const loc = document.getElementById('location').value;
+        const cat = document.getElementById('category').value;
+        const desc = document.getElementById('description').value;
 
-    if (!cat) { alert("Please select a category!"); return; } // Safety check
+        if (!cat) { alert("Please select a category!"); return; }
 
-    await addDoc(collection(db, "feedbacks"), { 
-        location: loc, 
-        category: cat, // Add this line to the database entry
-        description: desc, 
-        status: "pending", 
-        timestamp: new Date() 
-    });
-    alert("Sent!");
-};
+        await addDoc(collection(db, "feedbacks"), { 
+            location: loc, 
+            category: cat, 
+            description: desc, 
+            status: "pending", 
+            timestamp: new Date() 
+        });
+        alert("Sent!");
+    };
 
-       onSnapshot(query(collection(db, "feedbacks"), orderBy("timestamp", "desc")), (snapshot) => {
-    renderFeed(snapshot);
-});
+    window.renderFeed = (snapshot) => {
+        const list = document.getElementById('feedback-list');
+        list.innerHTML = "";
+        
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const adminControls = isAdmin 
+                ? `<div class="mt-4 flex gap-2">
+                    <button onclick="updateStatus('${doc.id}', 'in-progress')" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm font-bold">In Progress</button>
+                    <button onclick="updateStatus('${doc.id}', 'resolved')" class="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">Resolve</button>
+                  </div>` 
+                : "";
 
-function renderFeed(snapshot) {
-    const list = document.getElementById('feedback-list');
-    list.innerHTML = "";
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        // If isAdmin is true, we add a "Resolve" button
-        const adminControls = isAdmin 
-            ? `<button onclick="resolveIssue('${doc.id}')" class="bg-green-500 text-white p-1 rounded mt-2">Resolve</button>` 
-            : "";
+            list.innerHTML += `
+                <div class="bg-white p-6 mb-4 rounded-xl shadow-lg border-l-8 border-blue-500">
+                    <div class="flex justify-between items-start">
+                        <span class="text-sm font-bold uppercase text-blue-600 bg-blue-100 px-2 py-1 rounded">${data.category}</span>
+                        <span class="text-gray-400 text-sm">${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+                    </div>
+                    <h3 class="text-xl font-bold mt-2">${data.location}</h3>
+                    <p class="text-gray-700 mt-2 text-lg">${data.description}</p>
+                    <p class="text-sm text-gray-500 mt-2 italic">Status: ${data.status || 'pending'}</p>
+                    ${adminControls}
+                </div>`;
+        });
+    };
 
-        list.innerHTML += `
-            <div class="bg-white p-4 mb-2 rounded shadow border-l-4 border-blue-500">
-                <span class="text-xs font-bold uppercase text-blue-600">${data.category}</span>
-                <h3 class="font-bold">${data.location}</h3>
-                <p>${data.description}</p>
-                ${adminControls}
-            </div>`;
-    });
-}
-    </script>
-</body>
-</html>
+    window.updateStatus = async (id, newStatus) => {
+        try {
+            const issueRef = doc(db, "feedbacks", id);
+            await updateDoc(issueRef, { status: newStatus });
+            alert("Status updated to: " + newStatus);
+        } catch (error) {
+            console.error("Error updating document: ", error);
+            alert("Failed to update status.");
+        }
+    };
+</script>
+    </body>
+    </html>
