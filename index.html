@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Campus Pulse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-5">
+    <h1 class="text-3xl font-bold text-center mb-8">Campus Pulse</h1>
+    
+    <div class="bg-white p-6 rounded shadow max-w-md mx-auto">
+        <select id="location" class="w-full border p-2 mb-3 rounded">
+            <option>Library</option>
+            <option>Canteen</option>
+            <option>Block A</option>
+        </select>
+        <textarea id="description" placeholder="What's the issue?" class="w-full border p-2 mb-3 rounded"></textarea>
+        <button onclick="saveIssue()" class="w-full bg-blue-600 text-white p-2 rounded">Submit Issue</button>
+    </div>
+
+    <div id="feedback-list" class="max-w-md mx-auto mt-6"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+        // PASTE YOUR CONFIG HERE
+    const firebaseConfig = {
+    apiKey: "AIzaSyAB-nrFjOenLR1in99KNGcn0u_EvPrO5KQ",
+    authDomain: "campuspulse-c2b3d.firebaseapp.com",
+    projectId: "campuspulse-c2b3d",
+    storageBucket: "campuspulse-c2b3d.firebasestorage.app",
+    messagingSenderId: "170661187917",
+    appId: "1:170661187917:web:23e1ecd329bf7bd8fb6704"
+  };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.saveIssue = async () => {
+            const loc = document.getElementById('location').value;
+            const desc = document.getElementById('description').value;
+            await addDoc(collection(db, "feedbacks"), { location: loc, description: desc, status: "pending", timestamp: new Date() });
+            alert("Sent!");
+        };
+
+        onSnapshot(query(collection(db, "feedbacks"), orderBy("timestamp", "desc")), (snapshot) => {
+            const list = document.getElementById('feedback-list');
+            list.innerHTML = "";
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                list.innerHTML += `<div class="bg-white p-4 mb-2 rounded shadow"><strong>${data.location}</strong>: ${data.description}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>
