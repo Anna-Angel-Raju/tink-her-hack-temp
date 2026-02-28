@@ -11,7 +11,7 @@ Hosted Project Link:
 Project Description
 Campus Pulse is a real-time, role-based feedback management system. It bridges the gap between students and administrative staff, ensuring that facility issues—like maintenance, connectivity, or cleanliness—are reported, tracked, and resolved efficiently.
 
-The Problem statement
+The Problem statement:
 Universities often lack a centralized, transparent channel for students to report infrastructure issues. Reports are often made informally, get lost, or are duplicated, leading to slow response times and frustration.
 
 The Solution
