@@ -12,8 +12,28 @@
         <select id="location" class="w-full border p-2 mb-3 rounded">
             <option>Library</option>
             <option>Canteen</option>
-            <option>Block A</option>
+            <option>CS</option>
+            <option>Mech</option>
+            <option>Civil</option>
+            <option>EEE</option>
+            <option>AEI</option>
+            <option>EC</option>
+            <option>Industrial</option>
+            <option>EL</option>
+            <option>MCA</option>
+            <option>PyhsicalEducation</option>
         </select>
+
+     <select id="category" class="w-full border p-2 mb-3 rounded">
+    <option value="" disabled selected>Select Category</option>
+    <option>Maintenance</option>
+    <option>Internet</option>
+    <option>Cleanliness</option>
+    <option>Safety</option>
+    <option>Sanitary</option>
+    
+    </select>
+
         <textarea id="description" placeholder="What's the issue?" class="w-full border p-2 mb-3 rounded"></textarea>
         <button onclick="saveIssue()" class="w-full bg-blue-600 text-white p-2 rounded">Submit Issue</button>
     </div>
@@ -38,21 +58,37 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        window.saveIssue = async () => {
-            const loc = document.getElementById('location').value;
-            const desc = document.getElementById('description').value;
-            await addDoc(collection(db, "feedbacks"), { location: loc, description: desc, status: "pending", timestamp: new Date() });
-            alert("Sent!");
-        };
+    window.saveIssue = async () => {
+    const loc = document.getElementById('location').value;
+    const cat = document.getElementById('category').value; // Get the category
+    const desc = document.getElementById('description').value;
+
+    if (!cat) { alert("Please select a category!"); return; } // Safety check
+
+    await addDoc(collection(db, "feedbacks"), { 
+        location: loc, 
+        category: cat, // Add this line to the database entry
+        description: desc, 
+        status: "pending", 
+        timestamp: new Date() 
+    });
+    alert("Sent!");
+};
 
         onSnapshot(query(collection(db, "feedbacks"), orderBy("timestamp", "desc")), (snapshot) => {
-            const list = document.getElementById('feedback-list');
-            list.innerHTML = "";
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                list.innerHTML += `<div class="bg-white p-4 mb-2 rounded shadow"><strong>${data.location}</strong>: ${data.description}</div>`;
-            });
-        });
+    const list = document.getElementById('feedback-list');
+    list.innerHTML = "";
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        // Look at the line below - it now includes ${data.category}
+        list.innerHTML += `
+            <div class="bg-white p-4 mb-2 rounded shadow border-l-4 border-blue-500">
+                <span class="text-xs font-bold uppercase text-blue-600">${data.category}</span>
+                <h3 class="font-bold">${data.location}</h3>
+                <p>${data.description}</p>
+            </div>`;
+    });
+});
     </script>
 </body>
 </html>
