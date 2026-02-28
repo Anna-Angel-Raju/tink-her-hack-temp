@@ -8,9 +8,20 @@
 <body class="bg-gray-100 p-5">
     <h1 class="text-3xl font-bold text-center mb-8">Campus Pulse</h1>
 
-    <button onclick="loginAdmin()" class="fixed top-5 right-5 bg-gray-800 text-white p-2 rounded text-sm">
+<button onclick="openAdminModal()" class="fixed top-5 right-5 bg-gray-800 text-white p-2 rounded text-sm">
     Admin Login
-    </button>
+</button>
+
+  <div id="admin-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm">
+        <h2 class="text-xl font-bold mb-4">Admin Login</h2>
+        <input type="password" id="admin-password" placeholder="Enter Password" class="w-full border p-2 mb-4 rounded">
+        <div class="flex gap-2">
+            <button onclick="closeModal()" class="w-full bg-gray-300 p-2 rounded">Cancel</button>
+            <button onclick="verifyAdmin()" class="w-full bg-blue-600 text-white p-2 rounded">Login</button>
+        </div>
+    </div>
+</div>
 
     <div id="form-container">
     <div class="bg-white p-6 rounded shadow max-w-md mx-auto">
@@ -52,7 +63,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    // 2. FIREBASE CONFIG & INIT
+    // 2. FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyAB-nrFjOenLR1in99KNGcn0u_EvPrO5KQ",
         authDomain: "campuspulse-c2b3d.firebaseapp.com",
@@ -70,22 +81,31 @@
     let isAdmin = false;
     let currentSnapshot = null;
 
-    // 4. THE LIVE LISTENER (Only one!)
+    // 4. LIVE LISTENER
     onSnapshot(query(collection(db, "feedbacks"), orderBy("timestamp", "desc")), (snapshot) => {
         currentSnapshot = snapshot;
         renderFeed(snapshot);
     });
 
     // 5. FUNCTIONS
-    window.loginAdmin = () => {
-        const password = prompt("Enter Admin Password:");
+    window.openAdminModal = () => {
+        document.getElementById('admin-modal').classList.remove('hidden');
+    };
+
+    window.closeModal = () => {
+        document.getElementById('admin-modal').classList.add('hidden');
+    };
+
+    window.verifyAdmin = () => {
+        const password = document.getElementById('admin-password').value;
         if (password === ADMIN_SECRET) {
             isAdmin = true;
             document.getElementById('form-container').style.display = 'none';
-            if (currentSnapshot) renderFeed(currentSnapshot); 
-            alert("Welcome, Admin!");
+            document.getElementById('admin-modal').classList.add('hidden');
+            if (currentSnapshot) renderFeed(currentSnapshot);
+            showNotification("Welcome, Admin!");
         } else {
-            alert("Invalid Password!");
+            showNotification("Invalid Password!", true);
         }
     };
 
@@ -94,7 +114,10 @@
         const cat = document.getElementById('category').value;
         const desc = document.getElementById('description').value;
 
-        if (!cat) { alert("Please select a category!"); return; }
+        if (!cat) { 
+            showNotification("Please select a category!", true); 
+            return; 
+        }
 
         await addDoc(collection(db, "feedbacks"), { 
             location: loc, 
@@ -103,7 +126,7 @@
             status: "pending", 
             timestamp: new Date() 
         });
-        alert("Sent!");
+        showNotification("Issue submitted successfully!");
     };
 
     window.renderFeed = (snapshot) => {
@@ -114,6 +137,7 @@
             const data = doc.data();
             const adminControls = isAdmin 
                 ? `<div class="mt-4 flex gap-2">
+                    <button onclick="updateStatus('${doc.id}', 'pending')" class="bg-gray-500 text-white px-3 py-1 rounded text-sm font-bold">Pending</button>
                     <button onclick="updateStatus('${doc.id}', 'in-progress')" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm font-bold">In Progress</button>
                     <button onclick="updateStatus('${doc.id}', 'resolved')" class="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">Resolve</button>
                   </div>` 
@@ -137,12 +161,24 @@
         try {
             const issueRef = doc(db, "feedbacks", id);
             await updateDoc(issueRef, { status: newStatus });
-            alert("Status updated to: " + newStatus);
+            showNotification("Status updated to: " + newStatus);
         } catch (error) {
             console.error("Error updating document: ", error);
-            alert("Failed to update status.");
+            showNotification("Failed to update status.", true);
         }
     };
+
+    window.showNotification = (message, isError = false) => {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        toastMessage.textContent = message;
+        toast.className = `fixed top-5 right-5 z-50 p-4 rounded-lg shadow-2xl text-white font-bold transition-all duration-300 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+        toast.classList.remove('hidden');
+        setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+    };
 </script>
+<div id="toast" class="hidden fixed top-5 right-5 z-50 p-4 rounded-lg shadow-2xl text-white font-bold transition-all duration-300">
+    <span id="toast-message"></span>
+</div>
     </body>
     </html>
