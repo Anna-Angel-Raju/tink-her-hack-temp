@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="./img.png" alt="Project Banner" width="100%">
+</p>
 Campus Pulse 🎯
 Real-Time Campus Infrastructure Monitoring & Feedback System
 
@@ -6,7 +9,7 @@ Developer
 Anna Angel Raju - College of Engineering Trivandrum (CET)
 
 Hosted Project Link:
-
+https://tink-her-hack-temp-gold.vercel.app/
 
 Project Description
 Campus Pulse is a real-time, role-based feedback management system. It bridges the gap between students and administrative staff, ensuring that facility issues—like maintenance, connectivity, or cleanliness—are reported, tracked, and resolved efficiently.
@@ -54,6 +57,15 @@ Since this is a client-side web application with a Firebase backend, simply open
 
 Project Documentation
 Screenshots
+<img width="1920" height="1080" alt="Screenshot 2026-02-28 175107" src="https://github.com/user-attachments/assets/9d96b79e-05e5-4dca-b073-1c5b3544516b" />
+LOGIN_PAGE
+<img width="1920" height="1080" alt="Screenshot 2026-02-28 175129" src="https://github.com/user-attachments/assets/6b3c59df-bb7f-4332-80fc-3b3cce18ea65" />
+ADMIN_PAGE
+<img width="1920" height="1080" alt="Screenshot 2026-02-28 175139" src="https://github.com/user-attachments/assets/304e272c-80d1-4481-9c05-10ddebfa923b" />
+FILTERING_OPTION
+
+
+
 The student interface showing the issue submission form and the live incident feed.
 
 The Admin interface showing the incident cards, analytics cards, and status workflow controls.
