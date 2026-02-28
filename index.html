@@ -47,6 +47,8 @@
     <option>Cleanliness</option>
     <option>Safety</option>
     <option>Sanitary</option>
+     <option>Other</option>
+
     
     </select>
 
@@ -139,42 +141,52 @@
         showNotification("Issue submitted successfully!");
     };
 
-    window.renderFeed = (snapshot) => {
+   window.renderFeed = (snapshot) => {
     const list = document.getElementById('feedback-list');
-    const filter = document.getElementById('filter-input').value.toLowerCase(); // Get search text
+    // Get the search value from the input field
+    const filterInput = document.getElementById('filter-input');
+    const filter = filterInput ? filterInput.value.toLowerCase() : "";
+    
     list.innerHTML = "";
     
     snapshot.forEach(doc => {
         const data = doc.data();
-        
-        // FILTER LOGIC: If a filter exists, hide items that don't match
-        if (filter && !data.category.toLowerCase().includes(filter)) {
-            return; // Skip this card
+        const category = (data.category || "").toLowerCase(); // Get category safely
+        const currentStatus = data.status || 'pending';
+
+        // --- THE FILTER LOGIC STARTS HERE ---
+        // If the user typed something, AND it doesn't match the category, skip this card
+        if (filter && !category.includes(filter)) {
+            return; // Stops this specific loop iteration and goes to the next card
         }
+        // --- THE FILTER LOGIC ENDS HERE ---
+
+        const pBtn = currentStatus === 'pending' ? 'bg-gray-600 text-white' : 'bg-gray-100 text-gray-400';
+        const iBtn = currentStatus === 'in-progress' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400';
+        const rBtn = currentStatus === 'resolved' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-400';
 
         const adminControls = isAdmin 
             ? `<div class="mt-4 flex gap-2">
-                <button onclick="updateStatus('${doc.id}', 'pending')" class="bg-gray-500 text-white px-3 py-1 rounded text-sm font-bold">Pending</button>
-                <button onclick="updateStatus('${doc.id}', 'in-progress')" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm font-bold">In Progress</button>
-                <button onclick="updateStatus('${doc.id}', 'resolved')" class="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">Resolve</button>
+                <button onclick="updateStatus('${doc.id}', 'pending')" class="text-xs px-3 py-1 rounded font-bold ${pBtn}">Pending</button>
+                <button onclick="updateStatus('${doc.id}', 'in-progress')" class="text-xs px-3 py-1 rounded font-bold ${iBtn}">In Progress</button>
+                <button onclick="updateStatus('${doc.id}', 'resolved')" class="text-xs px-3 py-1 rounded font-bold ${rBtn}">Resolved</button>
               </div>` 
             : "";
 
-        // Inside renderFeed, update your card template:
-   list.innerHTML += `
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-        <div class="flex justify-between items-start mb-4">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-1 rounded-full">${data.category}</span>
-            <span class="text-gray-400 text-xs">${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
-        </div>
-        <h3 class="text-lg font-bold text-gray-800">${data.location}</h3>
-        <p class="text-gray-600 mt-2 text-sm leading-relaxed">${data.description}</p>
-        
-        <div class="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
-             <span class="text-[10px] font-semibold text-gray-400 uppercase">Status: ${data.status || 'pending'}</span>
-             ${adminControls}
-        </div>
-    </div>`;
+        list.innerHTML += `
+            <div class="bg-white p-6 mb-4 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="text-[10px] font-bold uppercase text-blue-600 bg-blue-50 px-2 py-1 rounded">${data.category}</span>
+                    <span class="text-gray-400 text-xs">${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800">${data.location}</h3>
+                <p class="text-gray-600 mt-2 text-sm">${data.description}</p>
+                
+                <div class="mt-4 flex items-center justify-between">
+                     <span class="text-[10px] font-bold uppercase text-gray-500">Status: ${currentStatus}</span>
+                     ${adminControls}
+                </div>
+            </div>`;
     });
 };
 
