@@ -7,6 +7,10 @@
 </head>
 <body class="bg-gray-100 p-5">
     <h1 class="text-3xl font-bold text-center mb-8">Campus Pulse</h1>
+
+    <button onclick="loginAdmin()" class="fixed top-5 right-5 bg-gray-800 text-white p-2 rounded text-sm">
+    Admin Login
+    </button>
     
     <div class="bg-white p-6 rounded shadow max-w-md mx-auto">
         <select id="location" class="w-full border p-2 mb-3 rounded">
@@ -41,8 +45,24 @@
     <div id="feedback-list" class="max-w-md mx-auto mt-6"></div>
 
     <script type="module">
+        // This is your "Admin Key" - keep it simple for the demo
+        const ADMIN_SECRET = "campus123"; 
+        let isAdmin = false; // By default, everyone is a student
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    window.loginAdmin = () => {
+    const password = prompt("Enter Admin Password:");
+    if (password === ADMIN_SECRET) {
+        isAdmin = true;
+        alert("Welcome, Admin!");
+        // Refresh the feed to show admin controls
+        renderFeed(); 
+    } else {
+        alert("Invalid Password!");
+    }
+  };
 
         // PASTE YOUR CONFIG HERE
     const firebaseConfig = {
@@ -75,20 +95,29 @@
     alert("Sent!");
 };
 
-        onSnapshot(query(collection(db, "feedbacks"), orderBy("timestamp", "desc")), (snapshot) => {
+       onSnapshot(query(collection(db, "feedbacks"), orderBy("timestamp", "desc")), (snapshot) => {
+    renderFeed(snapshot);
+});
+
+function renderFeed(snapshot) {
     const list = document.getElementById('feedback-list');
     list.innerHTML = "";
     snapshot.forEach(doc => {
         const data = doc.data();
-        // Look at the line below - it now includes ${data.category}
+        // If isAdmin is true, we add a "Resolve" button
+        const adminControls = isAdmin 
+            ? `<button onclick="resolveIssue('${doc.id}')" class="bg-green-500 text-white p-1 rounded mt-2">Resolve</button>` 
+            : "";
+
         list.innerHTML += `
             <div class="bg-white p-4 mb-2 rounded shadow border-l-4 border-blue-500">
                 <span class="text-xs font-bold uppercase text-blue-600">${data.category}</span>
                 <h3 class="font-bold">${data.location}</h3>
                 <p>${data.description}</p>
+                ${adminControls}
             </div>`;
     });
-});
+}
     </script>
 </body>
 </html>
