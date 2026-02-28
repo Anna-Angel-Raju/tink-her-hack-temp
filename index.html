@@ -55,6 +55,12 @@
     </div>
     </div>
 
+    <div id="admin-filter" class="hidden max-w-md mx-auto mb-6">
+    <input type="text" id="filter-input" onkeyup="refreshAdminView()" 
+           placeholder="🔍 Search category (e.g., Internet, Safety)..." 
+           class="w-full border-2 border-blue-500 p-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+   </div>
+
     <div id="feedback-list" class="max-w-md mx-auto mt-6"></div>
 
 
@@ -97,17 +103,21 @@
     };
 
     window.verifyAdmin = () => {
-        const password = document.getElementById('admin-password').value;
-        if (password === ADMIN_SECRET) {
-            isAdmin = true;
-            document.getElementById('form-container').style.display = 'none';
-            document.getElementById('admin-modal').classList.add('hidden');
-            if (currentSnapshot) renderFeed(currentSnapshot);
-            showNotification("Welcome, Admin!");
-        } else {
-            showNotification("Invalid Password!", true);
-        }
-    };
+    const password = document.getElementById('admin-password').value;
+    if (password === ADMIN_SECRET) {
+        isAdmin = true;
+        document.getElementById('form-container').style.display = 'none';
+        
+        // SHOW THE FILTER BAR
+        document.getElementById('admin-filter').classList.remove('hidden'); 
+        
+        document.getElementById('admin-modal').classList.add('hidden');
+        if (currentSnapshot) renderFeed(currentSnapshot);
+        showNotification("Welcome, Admin!");
+    } else {
+        showNotification("Invalid Password!", true);
+    }
+};
 
     window.saveIssue = async () => {
         const loc = document.getElementById('location').value;
@@ -130,32 +140,44 @@
     };
 
     window.renderFeed = (snapshot) => {
-        const list = document.getElementById('feedback-list');
-        list.innerHTML = "";
+    const list = document.getElementById('feedback-list');
+    const filter = document.getElementById('filter-input').value.toLowerCase(); // Get search text
+    list.innerHTML = "";
+    
+    snapshot.forEach(doc => {
+        const data = doc.data();
         
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const adminControls = isAdmin 
-                ? `<div class="mt-4 flex gap-2">
-                    <button onclick="updateStatus('${doc.id}', 'pending')" class="bg-gray-500 text-white px-3 py-1 rounded text-sm font-bold">Pending</button>
-                    <button onclick="updateStatus('${doc.id}', 'in-progress')" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm font-bold">In Progress</button>
-                    <button onclick="updateStatus('${doc.id}', 'resolved')" class="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">Resolve</button>
-                  </div>` 
-                : "";
+        // FILTER LOGIC: If a filter exists, hide items that don't match
+        if (filter && !data.category.toLowerCase().includes(filter)) {
+            return; // Skip this card
+        }
 
-            list.innerHTML += `
-                <div class="bg-white p-6 mb-4 rounded-xl shadow-lg border-l-8 border-blue-500">
-                    <div class="flex justify-between items-start">
-                        <span class="text-sm font-bold uppercase text-blue-600 bg-blue-100 px-2 py-1 rounded">${data.category}</span>
-                        <span class="text-gray-400 text-sm">${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
-                    </div>
-                    <h3 class="text-xl font-bold mt-2">${data.location}</h3>
-                    <p class="text-gray-700 mt-2 text-lg">${data.description}</p>
-                    <p class="text-sm text-gray-500 mt-2 italic">Status: ${data.status || 'pending'}</p>
-                    ${adminControls}
-                </div>`;
-        });
-    };
+        const adminControls = isAdmin 
+            ? `<div class="mt-4 flex gap-2">
+                <button onclick="updateStatus('${doc.id}', 'pending')" class="bg-gray-500 text-white px-3 py-1 rounded text-sm font-bold">Pending</button>
+                <button onclick="updateStatus('${doc.id}', 'in-progress')" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm font-bold">In Progress</button>
+                <button onclick="updateStatus('${doc.id}', 'resolved')" class="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">Resolve</button>
+              </div>` 
+            : "";
+
+        list.innerHTML += `
+            <div class="bg-white p-6 mb-4 rounded-xl shadow-lg border-l-8 border-blue-500">
+                <div class="flex justify-between items-start">
+                    <span class="text-sm font-bold uppercase text-blue-600 bg-blue-100 px-2 py-1 rounded">${data.category}</span>
+                    <span class="text-gray-400 text-sm">${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+                </div>
+                <h3 class="text-xl font-bold mt-2">${data.location}</h3>
+                <p class="text-gray-700 mt-2 text-lg">${data.description}</p>
+                <p class="text-sm text-gray-500 mt-2 italic">Status: ${data.status || 'pending'}</p>
+                ${adminControls}
+            </div>`;
+    });
+};
+
+// Add this helper to force a refresh when typing
+window.refreshAdminView = () => {
+    if (currentSnapshot) renderFeed(currentSnapshot);
+};
 
     window.updateStatus = async (id, newStatus) => {
         try {
