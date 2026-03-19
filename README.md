@@ -1,108 +1,64 @@
-<p align="center">
-  <img src="./img.png" alt="Project Banner" width="100%">
-</p>
-Campus Pulse 🎯
-Real-Time Campus Infrastructure Monitoring & Feedback System
+# 🚀 Campus Pulse
 
-Basic Details
-Developer
-Anna Angel Raju - College of Engineering Trivandrum (CET)
+### 📌 Real-Time Campus Infrastructure Monitoring & Feedback System
 
-Hosted Project Link:
-https://tink-her-hack-temp-gold.vercel.app/
+👩‍💻 **Developer:** Anna Angel Raju  
+🏫 **College:** College of Engineering Trivandrum (CET)
 
-Project Description
-Campus Pulse is a real-time, role-based feedback management system. It bridges the gap between students and administrative staff, ensuring that facility issues—like maintenance, connectivity, or cleanliness—are reported, tracked, and resolved efficiently.
+---
 
-The Problem statement:
-Universities often lack a centralized, transparent channel for students to report infrastructure issues. Reports are often made informally, get lost, or are duplicated, leading to slow response times and frustration.
+## 🔗 Live Project
+👉 https://tink-her-hack-temp-gokd.vercel.app/
 
-The Solution
-A web-based, real-time dashboard where students can submit categorized feedback. Admins manage these reports through an authenticated dashboard, featuring workflow automation, data analytics, and duplicate detection to streamline maintenance.
+---
 
-Technical Details
-Technologies Used
-Frontend: HTML5, CSS3, Tailwind CSS
+## 📖 Project Description
+Campus Pulse is a real-time, role-based feedback management system.  
+It bridges the gap between students and administrative staff by enabling efficient issue reporting and tracking.
 
-Backend/Database: Firebase Firestore
+---
 
-Real-time Sync: Firebase onSnapshot listener
+## ❗ Problem Statement
+Universities lack a centralized system to report infrastructure issues.  
+Reports are often:
+- Informal  
+- Lost  
+- Duplicated  
 
-Authentication: Role-Based Access Control (Custom Admin Secret)
+👉 This leads to slow responses and frustration.
 
-Features
-Real-Time Feed: Updates automatically when new issues are submitted or statuses change.
+---
 
-Smart Duplicate Detection: Prevents multiple students from reporting the same active issue in the same location.
+## 💡 Solution
+A web-based dashboard where:
+- Students submit categorized feedback  
+- Admins manage and track issues  
+- Real-time updates improve efficiency  
 
-Admin Analytics: Live metric cards tracking Total, Pending, and Resolved issues.
+---
 
-Live Search & Filter: Dynamic filtering to help admins prioritize categories like 'Internet', 'Maintenance', or 'Safety'.
+## 🛠️ Tech Stack
+- **Frontend:** HTML, CSS, Tailwind CSS  
+- **Backend:** Firebase Firestore  
+- **Authentication:** Role-Based Access  
 
-Workflow Management: Update ticket status (Pending ➔ In Progress ➔ Resolved) with immediate visual feedback.
+---
 
-Interactive UI: Modern, responsive design with "Glassmorphism" headers, pulse animations, and custom typography.
+## ⚡ Features
+- 🔄 Real-time updates using Firebase  
+- 🔍 Smart duplicate detection  
+- 📊 Admin analytics dashboard  
+- 🔎 Search & filtering system  
+- 🔁 Workflow management (Pending → In Progress → Resolved)  
 
-Admin Access
-Password: campus123
+---
 
-Note: This password is for demonstration purposes during the hackathon submission.
+## 🎨 UI
+Modern responsive UI with smooth animations and clean design.
 
-Implementation
-How to Run
-Clone the repository:
+---
 
-Open:
-Since this is a client-side web application with a Firebase backend, simply open index.html in any modern web browser. (Recommended: Use the "Live Server" extension in VS Code).
-
-Project Documentation
-Screenshots
-<img width="1920" height="1080" alt="Screenshot 2026-02-28 175107" src="https://github.com/user-attachments/assets/9d96b79e-05e5-4dca-b073-1c5b3544516b" />
-LOGIN_PAGE
-<img width="1920" height="1080" alt="Screenshot 2026-02-28 175129" src="https://github.com/user-attachments/assets/6b3c59df-bb7f-4332-80fc-3b3cce18ea65" />
-ADMIN_PAGE
-<img width="1920" height="1080" alt="Screenshot 2026-02-28 175139" src="https://github.com/user-attachments/assets/304e272c-80d1-4481-9c05-10ddebfa923b" />
-FILTERING_OPTION
-
-VIDEOS
-
-
-
-The student interface showing the issue submission form and the live incident feed.
-
-The Admin interface showing the incident cards, analytics cards, and status workflow controls.
-
-Professional toast notifications providing instant feedback for actions.
-
-System Architecture
-The application uses a reactive frontend architecture. The frontend handles UI state and user input, while Firebase Firestore acts as the single source of truth, handling all data persistence. The app uses the Firebase onSnapshot listener to ensure the Admin dashboard and Student feed are always perfectly synced in real-time.
-
-AI Tools Used (For Transparency)
-Tool Used: Google Gemini (Gemini 3 Flash)
-
-Purpose:
-
-Architecting the Firestore data structure.
-
-Implementation of the real-time onSnapshot listener and sorting logic.
-
-UI/UX refinement using Tailwind CSS (Modals, Toasts, responsive Grids).
-
-Debugging of search filter logic and the duplicate prevention algorithm.
-
-Percentage of AI-assisted development: ~60%
-
-Human Contributions:
-
-Logic refinement and requirements planning.
-
-Integration of Firebase SDK configurations.
-
-Final CSS/Tailwind styling tweaks and design adjustments.
-
-Deployment and testing.
-
-License
-This project is licensed under the MIT License - see the  file for details.
-
-Made with ❤️ at TinkerHub
+## 📌 Future Improvements
+- Mobile app integration  
+- Notification system  
+- AI-based issue prioritization
